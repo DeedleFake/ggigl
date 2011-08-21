@@ -38,15 +38,20 @@ func NewBoard(size BoardSize) (*Board, os.Error) {
 		return nil, os.NewError(sdl.GetError())
 	}
 
-	b.img = sdl.CreateRGBSurface(sdl.HWSURFACE,
-		int(b.bg.W),
-		int(b.bg.H),
-		int(b.bg.Format.BitsPerPixel),
-		b.bg.Format.Rmask,
-		b.bg.Format.Gmask,
-		b.bg.Format.Bmask,
-		b.bg.Format.Amask,
-	)
+	//b.img = sdl.CreateRGBSurface(sdl.HWSURFACE,
+	//	int(b.bg.W),
+	//	int(b.bg.H),
+	//	int(b.bg.Format.BitsPerPixel),
+	//	b.bg.Format.Rmask,
+	//	b.bg.Format.Gmask,
+	//	b.bg.Format.Bmask,
+	//	b.bg.Format.Amask,
+	//)
+	//if b.img == nil {
+	//	return nil, os.NewError(sdl.GetError())
+	//}
+
+	b.img = sdl.Load(path.Join(BoardPath, fmt.Sprintf("%v.png", b.size)))
 	if b.img == nil {
 		return nil, os.NewError(sdl.GetError())
 	}
@@ -79,13 +84,18 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 }
 
 func (b *Board) drawPiece(x, y int, p *Piece) {
+	pimg := p.Image()
+
 	switch BoardSize(b.size) {
 	case Size19x19:
 		x = (x * 25) + 14
 		y = (y * 25) + 14
 	}
 
-	b.img.Blit(&sdl.Rect{X: int16(x), Y: int16(y)}, p.Image(), nil)
+	x -= int(pimg.W / 2)
+	y -= int(pimg.H / 2)
+
+	b.img.Blit(&sdl.Rect{X: int16(x), Y: int16(y)}, pimg, nil)
 }
 
 func (b *Board) Image() *sdl.Surface {

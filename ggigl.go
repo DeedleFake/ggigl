@@ -105,6 +105,7 @@ func (g *game) load() (err os.Error) {
 	if err != nil {
 		return
 	}
+	g.board.Place(2, 3, g.pieces["black"])
 
 	return
 }
