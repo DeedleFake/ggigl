@@ -1,15 +1,15 @@
 package main
 
-import(
+import (
 	"sdl"
 	"path"
 )
 
-var(
+var (
 	PiecePath = path.Join("data", "pieces")
 )
 
-type Piece struct{
+type Piece struct {
 	img *sdl.Surface
 }
 
