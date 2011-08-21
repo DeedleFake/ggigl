@@ -83,14 +83,20 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 	return true
 }
 
-func (b *Board) drawPiece(x, y int, p *Piece) {
-	pimg := p.Image()
-
+func (b *Board)CoordToXY(x, y int) (int, int) {
 	switch BoardSize(b.size) {
 	case Size19x19:
 		x = (x * 25) + 14
 		y = (y * 25) + 14
 	}
+
+	return x, y
+}
+
+func (b *Board) drawPiece(x, y int, p *Piece) {
+	x, y = b.CoordToXY(x, y)
+
+	pimg := p.Image()
 
 	x -= int(pimg.W / 2)
 	y -= int(pimg.H / 2)
@@ -112,4 +118,8 @@ func (b *Board) Image() *sdl.Surface {
 	}
 
 	return b.img
+}
+
+func (b *Board)Size() BoardSize {
+	return BoardSize(b.size)
 }
