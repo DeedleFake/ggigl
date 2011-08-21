@@ -1,4 +1,3 @@
 package main
 
-type Piece struct {
-}
+type Piece struct{}
