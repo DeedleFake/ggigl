@@ -1,5 +1,16 @@
 package main
 
+import(
+	"os"
+	"fmt"
+	"sdl"
+	"path"
+)
+
+var(
+	BoardPath = path.Join("data", "boards")
+)
+
 type BoardSize int
 
 const (
@@ -8,18 +19,24 @@ const (
 )
 
 type Board struct {
+	size int
 	pieces []*Piece
 
-	size int
+	bg *sdl.Surface
 }
 
-func NewBoard(size BoardSize) (b *Board) {
-	b = new(Board)
+func NewBoard(size BoardSize) (*Board, os.Error) {
+	b := new(Board)
 
 	b.size = int(size)
 	b.pieces = make([]*Piece, b.size*b.size)
 
-	return
+	b.bg = sdl.Load(path.Join(BoardPath, fmt.Sprintf("%v.png", b.size)))
+	if b.bg == nil {
+		return nil, os.NewError(sdl.GetError())
+	}
+
+	return b, nil
 }
 
 func (b *Board) At(x, y int) *Piece {
