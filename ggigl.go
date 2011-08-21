@@ -68,7 +68,7 @@ func (g *game) main() (err os.Error) {
 	return
 }
 
-func (g *game)draw() (err os.Error) {
+func (g *game) draw() (err os.Error) {
 	if g.screen.Blit(nil, g.board.Image(), nil) < 0 {
 		return os.NewError(sdl.GetError())
 	}

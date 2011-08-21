@@ -23,7 +23,7 @@ type Board struct {
 	size   int
 	pieces []*Piece
 
-	bg *sdl.Surface
+	bg  *sdl.Surface
 	img *sdl.Surface
 }
 
@@ -78,7 +78,7 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 	return true
 }
 
-func (b *Board)drawPiece(x, y int, p *Piece) {
+func (b *Board) drawPiece(x, y int, p *Piece) {
 	switch BoardSize(b.size) {
 	case Size19x19:
 		x = (x * 25) + 14
@@ -88,7 +88,7 @@ func (b *Board)drawPiece(x, y int, p *Piece) {
 	b.img.Blit(&sdl.Rect{X: int16(x), Y: int16(y)}, p.Image(), nil)
 }
 
-func (b *Board)Image() *sdl.Surface {
+func (b *Board) Image() *sdl.Surface {
 	b.img.FillRect(nil, sdl.MapRGB(b.img.Format, 0, 0, 0))
 
 	b.img.Blit(nil, b.bg, nil)

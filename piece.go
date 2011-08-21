@@ -32,6 +32,6 @@ func (p *Piece) free() {
 	p.img.Free()
 }
 
-func (p *Piece)Image() *sdl.Surface {
+func (p *Piece) Image() *sdl.Surface {
 	return p.img
 }
