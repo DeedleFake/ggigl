@@ -4,6 +4,7 @@ import (
 	"os"
 	"sdl"
 	"path"
+	"runtime"
 )
 
 var (
@@ -22,5 +23,11 @@ func NewPiece(t string) (*Piece, os.Error) {
 		return nil, os.NewError(sdl.GetError())
 	}
 
+	runtime.SetFinalizer(p, (*Piece).free)
+
 	return p, nil
+}
+
+func (p *Piece)free() {
+	p.img.Free()
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"sdl"
 	"path"
+	"runtime"
 )
 
 var (
@@ -36,7 +37,13 @@ func NewBoard(size BoardSize) (*Board, os.Error) {
 		return nil, os.NewError(sdl.GetError())
 	}
 
+	runtime.SetFinalizer(b, (*Board).free)
+
 	return b, nil
+}
+
+func (b *Board)free() {
+	b.bg.Free()
 }
 
 func (b *Board) At(x, y int) *Piece {
