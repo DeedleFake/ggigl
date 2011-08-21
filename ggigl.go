@@ -57,7 +57,20 @@ func (g *game) main() (err os.Error) {
 			}
 		}
 
+		g.screen.FillRect(nil, 0)
+		err = g.draw()
+		if err != nil {
+			return
+		}
 		g.screen.Flip()
+	}
+
+	return
+}
+
+func (g *game)draw() (err os.Error) {
+	if g.screen.Blit(nil, g.board.Image(), nil) < 0 {
+		return os.NewError(sdl.GetError())
 	}
 
 	return
@@ -70,8 +83,8 @@ func (g *game) load() (err os.Error) {
 	flag.IntVar(&size, "size", int(Size19x19), "Board size; accepts from list: (9, 19)")
 	flag.Parse()
 
-	switch size {
-	case int(Size9x9), int(Size19x19):
+	switch BoardSize(size) {
+	case Size9x9, Size19x19:
 	default:
 		return fmt.Errorf("Bad board size: %v", size)
 	}

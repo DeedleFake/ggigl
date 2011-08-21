@@ -31,3 +31,7 @@ func NewPiece(t string) (*Piece, os.Error) {
 func (p *Piece) free() {
 	p.img.Free()
 }
+
+func (p *Piece)Image() *sdl.Surface {
+	return p.img
+}
