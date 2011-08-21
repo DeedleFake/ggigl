@@ -143,14 +143,28 @@ func (g *game) draw() (err os.Error) {
 func (g *game) load() (err os.Error) {
 	var (
 		size int
+		handicap int
 	)
-	flag.IntVar(&size, "size", int(Size19x19), "Board size; accepts from list: (9, 19)")
+	flag.IntVar(&size,
+		"size",
+		int(Size19x19),
+		"Board size; accepts from list: (9, 19)",
+	)
+	flag.IntVar(&handicap,
+		"handicap",
+		0,
+		fmt.Sprintf("Handicap; maximum: %v", MaxHandicap()),
+	)
 	flag.Parse()
 
 	switch BoardSize(size) {
 	case Size9x9, Size19x19:
 	default:
 		return fmt.Errorf("Bad board size: %v", size)
+	}
+
+	if (handicap < 0) || (handicap > MaxHandicap()) {
+		return fmt.Errorf("Bad handicap: %v", handicap)
 	}
 
 	g.pieces = make(map[string]*Piece)
@@ -171,6 +185,8 @@ func (g *game) load() (err os.Error) {
 	if err != nil {
 		return
 	}
+
+	g.board.ApplyHandicap(g.pieces["black"], GetHandicap(handicap))
 
 	return
 }
