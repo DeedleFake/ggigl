@@ -28,6 +28,6 @@ func NewPiece(t string) (*Piece, os.Error) {
 	return p, nil
 }
 
-func (p *Piece)free() {
+func (p *Piece) free() {
 	p.img.Free()
 }

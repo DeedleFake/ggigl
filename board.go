@@ -42,7 +42,7 @@ func NewBoard(size BoardSize) (*Board, os.Error) {
 	return b, nil
 }
 
-func (b *Board)free() {
+func (b *Board) free() {
 	b.bg.Free()
 }
 

@@ -7,7 +7,7 @@ import (
 	"flag"
 )
 
-const(
+const (
 	WinCap = "GGIGL: Go Game In Go Lang"
 )
 
@@ -46,7 +46,7 @@ func (g *game) run() (err os.Error) {
 	return
 }
 
-func (g *game)main() (err os.Error) {
+func (g *game) main() (err os.Error) {
 	g.running = true
 
 	for g.running {
@@ -63,7 +63,7 @@ func (g *game)main() (err os.Error) {
 	return
 }
 
-func (g *game)load() (err os.Error) {
+func (g *game) load() (err os.Error) {
 	var (
 		size int
 	)
@@ -96,7 +96,7 @@ func (g *game)load() (err os.Error) {
 	return
 }
 
-func (g *game)quit() {
+func (g *game) quit() {
 	sdl.Quit()
 }
 
