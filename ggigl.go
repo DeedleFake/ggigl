@@ -142,7 +142,7 @@ func (g *game) draw() (err os.Error) {
 
 func (g *game) load() (err os.Error) {
 	var (
-		size int
+		size     int
 		handicap int
 	)
 	flag.IntVar(&size,

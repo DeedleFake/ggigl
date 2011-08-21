@@ -124,8 +124,8 @@ func (b *Board) Size() BoardSize {
 	return BoardSize(b.size)
 }
 
-func (b *Board)ApplyHandicap(p *Piece, h Handicap) {
-	for _, v := range(h) {
+func (b *Board) ApplyHandicap(p *Piece, h Handicap) {
+	for _, v := range h {
 		b.place(v[0], v[1], p)
 	}
 }
