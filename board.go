@@ -83,7 +83,7 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 	return true
 }
 
-func (b *Board)CoordToXY(x, y int) (int, int) {
+func (b *Board) CoordToXY(x, y int) (int, int) {
 	switch BoardSize(b.size) {
 	case Size19x19:
 		x = (x * 25) + 14
@@ -120,6 +120,6 @@ func (b *Board) Image() *sdl.Surface {
 	return b.img
 }
 
-func (b *Board)Size() BoardSize {
+func (b *Board) Size() BoardSize {
 	return BoardSize(b.size)
 }
