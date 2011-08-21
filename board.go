@@ -1,13 +1,13 @@
 package main
 
-import(
+import (
 	"os"
 	"fmt"
 	"sdl"
 	"path"
 )
 
-var(
+var (
 	BoardPath = path.Join("data", "boards")
 )
 
@@ -19,7 +19,7 @@ const (
 )
 
 type Board struct {
-	size int
+	size   int
 	pieces []*Piece
 
 	bg *sdl.Surface

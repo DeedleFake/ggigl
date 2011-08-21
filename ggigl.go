@@ -1,6 +1,6 @@
 package main
 
-import(
+import (
 	"os"
 	"fmt"
 	"flag"
@@ -8,20 +8,20 @@ import(
 
 type game struct {
 	pieces map[string]*Piece
-	board *Board
+	board  *Board
 }
 
-func (g *game)run() (err os.Error) {
-	var(
+func (g *game) run() (err os.Error) {
+	var (
 		size int
 	)
 	flag.IntVar(&size, "size", int(Size19x19), "Board size; accepts from list: (9, 19)")
 	flag.Parse()
 
 	switch size {
-		case int(Size9x9), int(Size19x19):
-		default:
-			return fmt.Errorf("Bad board size: %v", size)
+	case int(Size9x9), int(Size19x19):
+	default:
+		return fmt.Errorf("Bad board size: %v", size)
 	}
 
 	g.pieces = make(map[string]*Piece)
