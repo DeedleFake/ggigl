@@ -1,0 +1,3 @@
+ * Implement game logic. Currently pieces may be placed, but nothing actually happens.
+ * Add mouse controls.
+ * Clean up interface.
