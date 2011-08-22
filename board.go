@@ -78,10 +78,10 @@ func (b *Board) place(x, y int, p *Piece) {
 	b.pieces[(y*b.size)+x] = p
 }
 
-func (b *Board)checkLib(x, y int) [][2]int {
+func (b *Board) checkLib(x, y int) [][2]int {
 	var checked [][2]int
 	inchecked := func(x, y int) bool {
-		for _, v := range(checked) {
+		for _, v := range checked {
 			if (v[0] == x) && (v[1] == y) {
 				return true
 			}
@@ -106,28 +106,28 @@ func (b *Board)checkLib(x, y int) [][2]int {
 		var ret bool
 
 		if y > 0 {
-			up := b.At(x, y - 1)
+			up := b.At(x, y-1)
 			if !ret && (up == p || up == nil) {
 				ret = ret || hasfree(x, y-1)
 			}
 		}
 
-		if y < b.size - 1 {
-			down := b.At(x, y + 1)
+		if y < b.size-1 {
+			down := b.At(x, y+1)
 			if !ret && (down == p || down == nil) {
 				ret = ret || hasfree(x, y+1)
 			}
 		}
 
 		if x > 0 {
-			left := b.At(x - 1, y)
+			left := b.At(x-1, y)
 			if !ret && (left == p || left == nil) {
 				ret = ret || hasfree(x-1, y)
 			}
 		}
 
-		if x < b.size - 1 {
-			right := b.At(x + 1, y)
+		if x < b.size-1 {
+			right := b.At(x+1, y)
 			if !ret && (right == p || right == nil) {
 				ret = ret || hasfree(x+1, y)
 			}
@@ -156,29 +156,29 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 	}
 
 	if x > 0 {
-		if c := b.checkLib(x - 1, y); c != nil {
-			for _, v := range(c) {
+		if c := b.checkLib(x-1, y); c != nil {
+			for _, v := range c {
 				b.Remove(v[0], v[1])
 			}
 		}
 	}
-	if x < b.size - 1 {
-		if c := b.checkLib(x + 1, y); c != nil {
-			for _, v := range(c) {
+	if x < b.size-1 {
+		if c := b.checkLib(x+1, y); c != nil {
+			for _, v := range c {
 				b.Remove(v[0], v[1])
 			}
 		}
 	}
 	if y > 0 {
-		if c := b.checkLib(x, y - 1); c != nil {
-			for _, v := range(c) {
+		if c := b.checkLib(x, y-1); c != nil {
+			for _, v := range c {
 				b.Remove(v[0], v[1])
 			}
 		}
 	}
-	if y < b.size - 1 {
-		if c := b.checkLib(x, y + 1); c != nil {
-			for _, v := range(c) {
+	if y < b.size-1 {
+		if c := b.checkLib(x, y+1); c != nil {
+			for _, v := range c {
 				b.Remove(v[0], v[1])
 			}
 		}
@@ -191,15 +191,15 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 	return true
 }
 
-func (b *Board)Remove(x, y int) {
+func (b *Board) Remove(x, y int) {
 	p := b.At(x, y)
 
 	switch p {
-		case nil:
-		case b.p1:
-			b.p2cap++
-		default:
-			b.p1cap++
+	case nil:
+	case b.p1:
+		b.p2cap++
+	default:
+		b.p1cap++
 	}
 
 	b.place(x, y, nil)
