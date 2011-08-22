@@ -57,7 +57,17 @@ func (g *game) main() (err os.Error) {
 		for e := sdl.PollEvent(); e != nil; e = sdl.PollEvent() {
 			switch ev := e.(type) {
 			case *sdl.KeyboardEvent:
-				err = g.onKeyEvent(ev)
+				err = g.onKeyboardEvent(ev)
+				if err != nil {
+					return
+				}
+			case *sdl.MouseMotionEvent:
+				err = g.onMouseMotionEvent(ev)
+				if err != nil {
+					return
+				}
+			case *sdl.MouseButtonEvent:
+				err = g.onMouseButtonEvent(ev)
 				if err != nil {
 					return
 				}
@@ -77,7 +87,7 @@ func (g *game) main() (err os.Error) {
 	return
 }
 
-func (g *game) onKeyEvent(ev *sdl.KeyboardEvent) (err os.Error) {
+func (g *game) onKeyboardEvent(ev *sdl.KeyboardEvent) (err os.Error) {
 	switch ev.Type {
 	case sdl.KEYDOWN:
 		switch ev.Keysym.Sym {
@@ -114,27 +124,49 @@ func (g *game) onKeyEvent(ev *sdl.KeyboardEvent) (err os.Error) {
 	return
 }
 
+func (g *game)onMouseMotionEvent(ev *sdl.MouseMotionEvent) (err os.Error) {
+	g.selX, g.selY = g.board.XYToCoord(int(ev.X), int(ev.Y))
+
+	return
+}
+
+func (g *game)onMouseButtonEvent(ev *sdl.MouseButtonEvent) (err os.Error) {
+	switch ev.Type {
+		case sdl.MOUSEBUTTONDOWN:
+			switch ev.Button {
+				case sdl.BUTTON_LEFT:
+					if g.board.Place(g.selX, g.selY, g.turn) {
+						g.changeTurns()
+					}
+			}
+	}
+
+	return
+}
+
 func (g *game) draw() (err os.Error) {
 	if g.screen.Blit(nil, g.board.Image(), nil) < 0 {
 		return os.NewError(sdl.GetError())
 	}
 
-	sx, sy := g.board.CoordToXY(g.selX, g.selY)
-	//timg := g.turn.Image()
-	//sx -= int(timg.W / 2)
-	//sy -= int(timg.H / 2)
-	//timg.SetAlpha(sdl.SRCALPHA, 128)
-	//g.screen.Blit(&sdl.Rect{X: int16(sx), Y: int16(sy)}, timg, nil)
-	//timg.SetAlpha(sdl.SRCALPHA, 255)
-	switch g.turn {
-	case g.pieces["black"]:
+	if (g.selX >= 0) || (g.selY >= 0) {
+		sx, sy := g.board.CoordToXY(g.selX, g.selY)
+		//timg := g.turn.Image()
+		//sx -= int(timg.W / 2)
+		//sy -= int(timg.H / 2)
+		//timg.SetAlpha(sdl.SRCALPHA, 128)
+		//g.screen.Blit(&sdl.Rect{X: int16(sx), Y: int16(sy)}, timg, nil)
+		//timg.SetAlpha(sdl.SRCALPHA, 255)
+		switch g.turn {
+		case g.pieces["black"]:
 		g.screen.FillRect(&sdl.Rect{int16(sx - 10), int16(sy - 10), 20, 20},
 			sdl.MapRGBA(g.screen.Format, 0, 0, 0, 128),
 		)
-	case g.pieces["white"]:
+		case g.pieces["white"]:
 		g.screen.FillRect(&sdl.Rect{int16(sx - 10), int16(sy - 10), 20, 20},
 			sdl.MapRGBA(g.screen.Format, 255, 255, 255, 128),
 		)
+		}
 	}
 
 	return

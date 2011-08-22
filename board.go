@@ -144,6 +144,10 @@ func (b *Board) checkLib(x, y int) [][2]int {
 }
 
 func (b *Board) Place(x, y int, p *Piece) bool {
+	if (x < 0) || (x > b.size - 1) || (y < 0) || (y > b.size - 1) {
+		return false
+	}
+
 	if b.At(x, y) != nil {
 		return false
 	}
@@ -206,10 +210,28 @@ func (b *Board) Remove(x, y int) {
 }
 
 func (b *Board) CoordToXY(x, y int) (int, int) {
+	if (x > int(b.img.W)) || (y > int(b.img.H)) {
+		return -1, -1
+	}
+
 	switch BoardSize(b.size) {
 	case Size19x19:
 		x = (x * 25) + 14
 		y = (y * 25) + 14
+	}
+
+	return x, y
+}
+
+func (b *Board)XYToCoord(x, y int) (int, int) {
+	if (x > int(b.img.W)) || (y > int(b.img.H)) {
+		return -1, -1
+	}
+
+	switch BoardSize(b.size) {
+	case Size19x19:
+		x = (x) / 25
+		y = (y) / 25
 	}
 
 	return x, y
