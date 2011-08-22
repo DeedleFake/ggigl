@@ -215,6 +215,9 @@ func (b *Board) CoordToXY(x, y int) (int, int) {
 	}
 
 	switch BoardSize(b.size) {
+	case Size9x9:
+		x = (x * 52) + 31
+		y = (y * 52) + 31
 	case Size19x19:
 		x = (x * 25) + 14
 		y = (y * 25) + 14
@@ -229,9 +232,12 @@ func (b *Board) XYToCoord(x, y int) (int, int) {
 	}
 
 	switch BoardSize(b.size) {
+	case Size9x9:
+		x /= 52
+		y /= 52
 	case Size19x19:
-		x = (x) / 25
-		y = (y) / 25
+		x /= 25
+		y /= 25
 	}
 
 	return x, y
