@@ -28,8 +28,10 @@ type Board struct {
 
 	p1 *Piece
 
-	p1cap float64
-	p2cap float64
+	p1cap int
+	p2cap int
+
+	komi float64
 }
 
 func NewBoard(size BoardSize) (*Board, os.Error) {
@@ -278,4 +280,8 @@ func (b *Board) ApplyHandicap(p *Piece, h Handicap) {
 	for _, v := range h {
 		b.place(v[0], v[1], p)
 	}
+}
+
+func (b *Board)GiveKomi(komi float64) {
+	b.komi += komi
 }

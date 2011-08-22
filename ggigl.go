@@ -176,6 +176,7 @@ func (g *game) load() (err os.Error) {
 	var (
 		size     int
 		handicap int
+		komi float64
 	)
 	flag.IntVar(&size,
 		"size",
@@ -192,6 +193,11 @@ func (g *game) load() (err os.Error) {
 			MaxHandicap(Size19x19),
 		),
 	)
+	flag.Float64Var(&komi,
+		"komi",
+		-1,
+		"Komi; -1 to set based on handicap; Default: 5.5",
+	)
 	flag.Parse()
 
 	switch BoardSize(size) {
@@ -202,6 +208,13 @@ func (g *game) load() (err os.Error) {
 
 	if (handicap < 0) || (handicap > MaxHandicap(BoardSize(size))) {
 		return fmt.Errorf("Bad handicap: %v", handicap)
+	}
+
+	if komi < 0 {
+		komi = 5.5
+		if handicap != 0 {
+			komi = 0
+		}
 	}
 
 	g.pieces = make(map[string]*Piece)
@@ -228,6 +241,8 @@ func (g *game) load() (err os.Error) {
 		return
 	}
 	g.board.ApplyHandicap(g.pieces["black"], handi)
+
+	g.board.GiveKomi(komi)
 
 	return
 }
