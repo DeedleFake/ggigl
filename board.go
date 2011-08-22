@@ -78,35 +78,62 @@ func (b *Board) place(x, y int, p *Piece) {
 	b.pieces[(y*b.size)+x] = p
 }
 
-func (b *Board)checkLib(x, y int) bool {
-	p := b.At(x, y)
-	if p == nil {
-		return true
-	}
+func (b *Board)checkLib(x, y int) [][2]int {
+	var checked [][2]int
+	inchecked := func(x, y int) bool {
+		for _, v := range(checked) {
+			if (v[0] == x) && (v[1] == y) {
+				return true
+			}
+		}
 
-	up := b.At(x, y - 1)
-	down := b.At(x, y + 1)
-	left := b.At(x - 1, y)
-	right := b.At(x + 1, y)
-
-	if up == nil {
-		return true
-	}
-	if down == nil {
-		return true
-	}
-	if left == nil {
-		return true
-	}
-	if right == nil {
-		return true
-	}
-
-	if (up != p) && (down != p) && (left != p) && (right != p) {
 		return false
 	}
 
-	return true
+	var hasfree func(int, int) bool
+	hasfree = func(x, y int) bool {
+		p := b.At(x, y)
+		if p == nil {
+			return true
+		}
+
+		up := b.At(x, y - 1)
+		down := b.At(x, y + 1)
+		left := b.At(x - 1, y)
+		right := b.At(x + 1, y)
+
+		if (up == nil) || (down == nil) || (left == nil) || (right == nil) {
+			return true
+		}
+
+		checked = append(checked, [2]int{x, y})
+
+		if ((up != p) || inchecked(x, y - 1)) && ((down != p) || inchecked(x, y + 1)) && ((left != p) || inchecked(x - 1, y)) && ((right != p) || inchecked(x + 1, y)) {
+			return false
+		}
+
+		var ret bool
+		if (up == p) && (!inchecked(x, y - 1)) {
+			ret = hasfree(x, y - 1)
+		}
+		if ((down == p) && (!inchecked(x, y + 1))) || !ret {
+			ret = hasfree(x, y + 1)
+		}
+		if ((left == p) && (!inchecked(x - 1, y))) || !ret {
+			ret = hasfree(x - 1, y)
+		}
+		if ((right == p) && (!inchecked(x + 1, y))) || !ret {
+			ret = hasfree(x + 1, y)
+		}
+
+		return ret
+	}
+
+	if !hasfree(x, y) {
+		return checked
+	}
+
+	return nil
 }
 
 func (b *Board) Place(x, y int, p *Piece) bool {
@@ -116,22 +143,30 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 
 	b.place(x, y, p)
 
-	if !b.checkLib(x, y) {
+	if b.checkLib(x, y) != nil {
 		b.place(x, y, nil)
 		return false
 	}
 
-	if !b.checkLib(x - 1, y) {
-		b.Remove(x - 1, y)
+	if c := b.checkLib(x - 1, y); c != nil {
+		for _, v := range(c) {
+			b.Remove(v[0], v[1])
+		}
 	}
-	if !b.checkLib(x + 1, y) {
-		b.Remove(x + 1, y)
+	if c := b.checkLib(x + 1, y); c != nil {
+		for _, v := range(c) {
+			b.Remove(v[0], v[1])
+		}
 	}
-	if !b.checkLib(x, y - 1) {
-		b.Remove(x, y - 1)
+	if c := b.checkLib(x, y - 1); c != nil {
+		for _, v := range(c) {
+			b.Remove(v[0], v[1])
+		}
 	}
-	if !b.checkLib(x, y + 1) {
-		b.Remove(x, y + 1)
+	if c := b.checkLib(x, y + 1); c != nil {
+		for _, v := range(c) {
+			b.Remove(v[0], v[1])
+		}
 	}
 
 	if b.p1 == nil {
