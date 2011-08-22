@@ -25,6 +25,11 @@ type Board struct {
 
 	bg  *sdl.Surface
 	img *sdl.Surface
+
+	p1 *Piece
+
+	p1cap float64
+	p2cap float64
 }
 
 func NewBoard(size BoardSize) (*Board, os.Error) {
@@ -73,6 +78,37 @@ func (b *Board) place(x, y int, p *Piece) {
 	b.pieces[(y*b.size)+x] = p
 }
 
+func (b *Board)checkLib(x, y int) bool {
+	p := b.At(x, y)
+	if p == nil {
+		return true
+	}
+
+	up := b.At(x, y - 1)
+	down := b.At(x, y + 1)
+	left := b.At(x - 1, y)
+	right := b.At(x + 1, y)
+
+	if up == nil {
+		return true
+	}
+	if down == nil {
+		return true
+	}
+	if left == nil {
+		return true
+	}
+	if right == nil {
+		return true
+	}
+
+	if (up != p) && (down != p) && (left != p) && (right != p) {
+		return false
+	}
+
+	return true
+}
+
 func (b *Board) Place(x, y int, p *Piece) bool {
 	if b.At(x, y) != nil {
 		return false
@@ -80,7 +116,43 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 
 	b.place(x, y, p)
 
+	if !b.checkLib(x, y) {
+		b.place(x, y, nil)
+		return false
+	}
+
+	if !b.checkLib(x - 1, y) {
+		b.Remove(x - 1, y)
+	}
+	if !b.checkLib(x + 1, y) {
+		b.Remove(x + 1, y)
+	}
+	if !b.checkLib(x, y - 1) {
+		b.Remove(x, y - 1)
+	}
+	if !b.checkLib(x, y + 1) {
+		b.Remove(x, y + 1)
+	}
+
+	if b.p1 == nil {
+		b.p1 = p
+	}
+
 	return true
+}
+
+func (b *Board)Remove(x, y int) {
+	p := b.At(x, y)
+
+	switch p {
+		case nil:
+		case b.p1:
+			b.p2cap++
+		default:
+			b.p1cap++
+	}
+
+	b.place(x, y, nil)
 }
 
 func (b *Board) CoordToXY(x, y int) (int, int) {
