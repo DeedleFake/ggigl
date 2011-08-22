@@ -103,28 +103,37 @@ func (b *Board)checkLib(x, y int) [][2]int {
 
 		checked = append(checked, [...]int{x, y})
 
-		up := b.At(x, y - 1)
-		down := b.At(x, y + 1)
-		left := b.At(x - 1, y)
-		right := b.At(x + 1, y)
-
 		var ret bool
 
-		if !ret && (up == p || up == nil) {
-			ret = ret || hasfree(x, y-1)
+		if y > 0 {
+			up := b.At(x, y - 1)
+			if !ret && (up == p || up == nil) {
+				ret = ret || hasfree(x, y-1)
+			}
 		}
-		if !ret && (down == p || down == nil) {
-			ret = ret || hasfree(x, y+1)
+
+		if y < b.size - 1 {
+			down := b.At(x, y + 1)
+			if !ret && (down == p || down == nil) {
+				ret = ret || hasfree(x, y+1)
+			}
 		}
-		if !ret && (left == p || left == nil) {
-			ret = ret || hasfree(x-1, y)
+
+		if x > 0 {
+			left := b.At(x - 1, y)
+			if !ret && (left == p || left == nil) {
+				ret = ret || hasfree(x-1, y)
+			}
 		}
-		if !ret && (right == p || right == nil) {
-			ret = ret || hasfree(x+1, y)
+
+		if x < b.size - 1 {
+			right := b.At(x + 1, y)
+			if !ret && (right == p || right == nil) {
+				ret = ret || hasfree(x+1, y)
+			}
 		}
 
 		return ret
-
 	}
 
 	if !hasfree(x, y) {
@@ -146,24 +155,32 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 		return false
 	}
 
-	if c := b.checkLib(x - 1, y); c != nil {
-		for _, v := range(c) {
-			b.Remove(v[0], v[1])
+	if x > 0 {
+		if c := b.checkLib(x - 1, y); c != nil {
+			for _, v := range(c) {
+				b.Remove(v[0], v[1])
+			}
 		}
 	}
-	if c := b.checkLib(x + 1, y); c != nil {
-		for _, v := range(c) {
-			b.Remove(v[0], v[1])
+	if x < b.size - 1 {
+		if c := b.checkLib(x + 1, y); c != nil {
+			for _, v := range(c) {
+				b.Remove(v[0], v[1])
+			}
 		}
 	}
-	if c := b.checkLib(x, y - 1); c != nil {
-		for _, v := range(c) {
-			b.Remove(v[0], v[1])
+	if y > 0 {
+		if c := b.checkLib(x, y - 1); c != nil {
+			for _, v := range(c) {
+				b.Remove(v[0], v[1])
+			}
 		}
 	}
-	if c := b.checkLib(x, y + 1); c != nil {
-		for _, v := range(c) {
-			b.Remove(v[0], v[1])
+	if y < b.size - 1 {
+		if c := b.checkLib(x, y + 1); c != nil {
+			for _, v := range(c) {
+				b.Remove(v[0], v[1])
+			}
 		}
 	}
 
