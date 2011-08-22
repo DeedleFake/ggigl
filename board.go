@@ -97,36 +97,34 @@ func (b *Board)checkLib(x, y int) [][2]int {
 			return true
 		}
 
+		if inchecked(x, y) {
+			return false
+		}
+
+		checked = append(checked, [...]int{x, y})
+
 		up := b.At(x, y - 1)
 		down := b.At(x, y + 1)
 		left := b.At(x - 1, y)
 		right := b.At(x + 1, y)
 
-		if (up == nil) || (down == nil) || (left == nil) || (right == nil) {
-			return true
-		}
-
-		checked = append(checked, [2]int{x, y})
-
-		if ((up != p) || inchecked(x, y - 1)) && ((down != p) || inchecked(x, y + 1)) && ((left != p) || inchecked(x - 1, y)) && ((right != p) || inchecked(x + 1, y)) {
-			return false
-		}
-
 		var ret bool
-		if (up == p) && (!inchecked(x, y - 1)) {
-			ret = hasfree(x, y - 1)
+
+		if !ret && (up == p || up == nil) {
+			ret = ret || hasfree(x, y-1)
 		}
-		if ((down == p) && (!inchecked(x, y + 1))) || !ret {
-			ret = hasfree(x, y + 1)
+		if !ret && (down == p || down == nil) {
+			ret = ret || hasfree(x, y+1)
 		}
-		if ((left == p) && (!inchecked(x - 1, y))) || !ret {
-			ret = hasfree(x - 1, y)
+		if !ret && (left == p || left == nil) {
+			ret = ret || hasfree(x-1, y)
 		}
-		if ((right == p) && (!inchecked(x + 1, y))) || !ret {
-			ret = hasfree(x + 1, y)
+		if !ret && (right == p || right == nil) {
+			ret = ret || hasfree(x+1, y)
 		}
 
 		return ret
+
 	}
 
 	if !hasfree(x, y) {
