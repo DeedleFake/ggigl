@@ -150,38 +150,38 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 
 	b.place(x, y, p)
 
-	if b.checkLib(x, y) != nil {
-		b.place(x, y, nil)
-		return false
-	}
-
-	if x > 0 {
+	if (x > 0) && (b.At(x-1, y) != p) {
 		if c := b.checkLib(x-1, y); c != nil {
 			for _, v := range c {
 				b.Remove(v[0], v[1])
 			}
 		}
 	}
-	if x < b.size-1 {
+	if (x < b.size-1) && (b.At(x+1, y) != p) {
 		if c := b.checkLib(x+1, y); c != nil {
 			for _, v := range c {
 				b.Remove(v[0], v[1])
 			}
 		}
 	}
-	if y > 0 {
+	if (y > 0) && (b.At(x, y-1) != p) {
 		if c := b.checkLib(x, y-1); c != nil {
 			for _, v := range c {
 				b.Remove(v[0], v[1])
 			}
 		}
 	}
-	if y < b.size-1 {
+	if (y < b.size-1) && (b.At(x, y+1) != p) {
 		if c := b.checkLib(x, y+1); c != nil {
 			for _, v := range c {
 				b.Remove(v[0], v[1])
 			}
 		}
+	}
+
+	if b.checkLib(x, y) != nil {
+		b.place(x, y, nil)
+		return false
 	}
 
 	if b.p1 == nil {
