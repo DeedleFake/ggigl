@@ -282,6 +282,6 @@ func (b *Board) ApplyHandicap(p *Piece, h Handicap) {
 	}
 }
 
-func (b *Board)GiveKomi(komi float64) {
+func (b *Board) GiveKomi(komi float64) {
 	b.komi += komi
 }

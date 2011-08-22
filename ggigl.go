@@ -176,7 +176,7 @@ func (g *game) load() (err os.Error) {
 	var (
 		size     int
 		handicap int
-		komi float64
+		komi     float64
 	)
 	flag.IntVar(&size,
 		"size",
