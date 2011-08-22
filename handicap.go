@@ -1,14 +1,14 @@
 package main
 
-import(
+import (
 	"os"
 	"fmt"
 )
 
 type Handicap [][2]int
 
-var(
-	handicaps9 Handicap
+var (
+	handicaps9  Handicap
 	handicaps19 Handicap
 )
 
