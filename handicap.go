@@ -1,11 +1,31 @@
 package main
 
+import(
+	"os"
+	"fmt"
+)
+
 type Handicap [][2]int
 
-var handicaps Handicap
+var(
+	handicaps9 Handicap
+	handicaps19 Handicap
+)
 
 func init() {
-	handicaps = [][2]int{
+	handicaps9 = [][2]int{
+		[2]int{6, 2},
+		[2]int{2, 6},
+		[2]int{6, 6},
+		[2]int{2, 2},
+		[2]int{4, 4},
+		[2]int{2, 4},
+		[2]int{6, 4},
+		[2]int{4, 2},
+		[2]int{4, 6},
+	}
+
+	handicaps19 = [][2]int{
 		[2]int{15, 3},
 		[2]int{3, 15},
 		[2]int{15, 15},
@@ -18,10 +38,34 @@ func init() {
 	}
 }
 
-func GetHandicap(num int) Handicap {
-	return handicaps[:num]
+func GetHandicap(size BoardSize, num int) (Handicap, os.Error) {
+	switch size {
+	case Size9x9, Size19x19:
+	default:
+		return nil, fmt.Errorf("Handicaps not supported for board size: %v", size)
+	}
+
+	if num > MaxHandicap(size) {
+		return nil, fmt.Errorf("Handicap exceeds max for board size: %v", num)
+	}
+
+	switch size {
+	case Size9x9:
+		return handicaps9[:num], nil
+	case Size19x19:
+		return handicaps19[:num], nil
+	}
+
+	panic("This should never reach this point...")
 }
 
-func MaxHandicap() int {
-	return len(handicaps)
+func MaxHandicap(size BoardSize) int {
+	switch size {
+	case Size9x9:
+		return len(handicaps9)
+	case Size19x19:
+		return len(handicaps19)
+	}
+
+	return -1
 }

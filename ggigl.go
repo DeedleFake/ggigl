@@ -185,7 +185,12 @@ func (g *game) load() (err os.Error) {
 	flag.IntVar(&handicap,
 		"handicap",
 		0,
-		fmt.Sprintf("Handicap; maximum: %v", MaxHandicap()),
+		fmt.Sprintf("Handicap; maximums: (%v: %v, %v: %v)",
+			Size9x9,
+			MaxHandicap(Size9x9),
+			Size19x19,
+			MaxHandicap(Size19x19),
+		),
 	)
 	flag.Parse()
 
@@ -195,7 +200,7 @@ func (g *game) load() (err os.Error) {
 		return fmt.Errorf("Bad board size: %v", size)
 	}
 
-	if (handicap < 0) || (handicap > MaxHandicap()) {
+	if (handicap < 0) || (handicap > MaxHandicap(BoardSize(size))) {
 		return fmt.Errorf("Bad handicap: %v", handicap)
 	}
 
@@ -218,7 +223,11 @@ func (g *game) load() (err os.Error) {
 		return
 	}
 
-	g.board.ApplyHandicap(g.pieces["black"], GetHandicap(handicap))
+	handi, err := GetHandicap(BoardSize(size), handicap)
+	if err != nil {
+		return
+	}
+	g.board.ApplyHandicap(g.pieces["black"], handi)
 
 	return
 }
