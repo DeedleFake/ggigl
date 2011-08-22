@@ -124,21 +124,21 @@ func (g *game) onKeyboardEvent(ev *sdl.KeyboardEvent) (err os.Error) {
 	return
 }
 
-func (g *game)onMouseMotionEvent(ev *sdl.MouseMotionEvent) (err os.Error) {
+func (g *game) onMouseMotionEvent(ev *sdl.MouseMotionEvent) (err os.Error) {
 	g.selX, g.selY = g.board.XYToCoord(int(ev.X), int(ev.Y))
 
 	return
 }
 
-func (g *game)onMouseButtonEvent(ev *sdl.MouseButtonEvent) (err os.Error) {
+func (g *game) onMouseButtonEvent(ev *sdl.MouseButtonEvent) (err os.Error) {
 	switch ev.Type {
-		case sdl.MOUSEBUTTONDOWN:
-			switch ev.Button {
-				case sdl.BUTTON_LEFT:
-					if g.board.Place(g.selX, g.selY, g.turn) {
-						g.changeTurns()
-					}
+	case sdl.MOUSEBUTTONDOWN:
+		switch ev.Button {
+		case sdl.BUTTON_LEFT:
+			if g.board.Place(g.selX, g.selY, g.turn) {
+				g.changeTurns()
 			}
+		}
 	}
 
 	return
@@ -159,13 +159,13 @@ func (g *game) draw() (err os.Error) {
 		//timg.SetAlpha(sdl.SRCALPHA, 255)
 		switch g.turn {
 		case g.pieces["black"]:
-		g.screen.FillRect(&sdl.Rect{int16(sx - 10), int16(sy - 10), 20, 20},
-			sdl.MapRGBA(g.screen.Format, 0, 0, 0, 128),
-		)
+			g.screen.FillRect(&sdl.Rect{int16(sx - 10), int16(sy - 10), 20, 20},
+				sdl.MapRGBA(g.screen.Format, 0, 0, 0, 128),
+			)
 		case g.pieces["white"]:
-		g.screen.FillRect(&sdl.Rect{int16(sx - 10), int16(sy - 10), 20, 20},
-			sdl.MapRGBA(g.screen.Format, 255, 255, 255, 128),
-		)
+			g.screen.FillRect(&sdl.Rect{int16(sx - 10), int16(sy - 10), 20, 20},
+				sdl.MapRGBA(g.screen.Format, 255, 255, 255, 128),
+			)
 		}
 	}
 

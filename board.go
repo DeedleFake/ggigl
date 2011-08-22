@@ -144,7 +144,7 @@ func (b *Board) checkLib(x, y int) [][2]int {
 }
 
 func (b *Board) Place(x, y int, p *Piece) bool {
-	if (x < 0) || (x > b.size - 1) || (y < 0) || (y > b.size - 1) {
+	if (x < 0) || (x > b.size-1) || (y < 0) || (y > b.size-1) {
 		return false
 	}
 
@@ -223,7 +223,7 @@ func (b *Board) CoordToXY(x, y int) (int, int) {
 	return x, y
 }
 
-func (b *Board)XYToCoord(x, y int) (int, int) {
+func (b *Board) XYToCoord(x, y int) (int, int) {
 	if (x > int(b.img.W)) || (y > int(b.img.H)) {
 		return -1, -1
 	}
