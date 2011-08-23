@@ -19,9 +19,9 @@ type game struct {
 	pieces map[string]*Piece
 	board  *Board
 
-	selX int
-	selY int
-	turn *Piece
+	selX   int
+	selY   int
+	turn   *Piece
 	passed bool
 
 	screen *sdl.Surface
@@ -274,7 +274,7 @@ func (g *game) changeTurns() {
 }
 
 // Takes a normal turn, placing a piece at the predetermined coordinates.
-func (g *game)placeTurn() {
+func (g *game) placeTurn() {
 	if g.board.Place(g.selX, g.selY, g.turn) {
 		g.changeTurns()
 	}
@@ -282,7 +282,7 @@ func (g *game)placeTurn() {
 
 // Passes. Checks if it's the second pass in a row. If it is, it
 // returns true.
-func (g *game)passTurn() bool {
+func (g *game) passTurn() bool {
 	if g.passed {
 		return true
 	}

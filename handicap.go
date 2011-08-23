@@ -11,7 +11,7 @@ type Handicap [][2]int
 
 var (
 	// Handicap information for a 9x9 board.
-	handicaps9  Handicap
+	handicaps9 Handicap
 
 	// Handicap information for a 19x19 board.
 	handicaps19 Handicap
