@@ -9,9 +9,12 @@ import (
 )
 
 var (
+	// The path to the board data.
 	BoardPath = path.Join("data", "boards")
 )
 
+// A type for differentiating board sizes from regular ints. Will
+// most likely do something else eventually.
 type BoardSize int
 
 const (
@@ -19,6 +22,8 @@ const (
 	Size19x19 BoardSize = 19
 )
 
+// Stores board information. Also calculates score and keeps track of
+// the basic rules.
 type Board struct {
 	size   int
 	pieces []*Piece
@@ -34,6 +39,7 @@ type Board struct {
 	komi float64
 }
 
+// Initializes a new board of the given size.
 func NewBoard(size BoardSize) (*Board, os.Error) {
 	b := new(Board)
 
@@ -68,18 +74,25 @@ func NewBoard(size BoardSize) (*Board, os.Error) {
 	return b, nil
 }
 
+// Frees up the boards resources.
 func (b *Board) free() {
 	b.bg.Free()
 }
 
+// Returns the piece at the specified coordinates.
 func (b *Board) At(x, y int) *Piece {
 	return b.pieces[(y*b.size)+x]
 }
 
+// Places a piece at the specified coordinates without running any
+// rule checks.
 func (b *Board) place(x, y int, p *Piece) {
 	b.pieces[(y*b.size)+x] = p
 }
 
+// Recursively checks the liberties of a piece and the neibourghing
+// pieces of the same color. Returns a slice of the coordinates of
+// pieces that need to be removed, or nil if it finds empty liberties.
 func (b *Board) checkLib(x, y int) [][2]int {
 	var checked [][2]int
 	inchecked := func(x, y int) bool {
@@ -145,6 +158,11 @@ func (b *Board) checkLib(x, y int) [][2]int {
 	return nil
 }
 
+// Attempts to place the specified piece at the specified coordinates,
+// checking whether or not it's a legal move. Also checks the
+// surrounding pieces to see if they've been captured. If they have,
+// it removes them. Also sets player one. Returns true if the piece
+// was placed, and false if it wasn't.
 func (b *Board) Place(x, y int, p *Piece) bool {
 	if (x < 0) || (x > b.size-1) || (y < 0) || (y > b.size-1) {
 		return false
@@ -197,6 +215,7 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 	return true
 }
 
+// Removes a piece from the board, updating the capture scores.
 func (b *Board) Remove(x, y int) {
 	p := b.At(x, y)
 
@@ -211,6 +230,7 @@ func (b *Board) Remove(x, y int) {
 	b.place(x, y, nil)
 }
 
+// Converts board coordinates to on-screen coordinates.
 func (b *Board) CoordToXY(x, y int) (int, int) {
 	if (x > int(b.img.W)) || (y > int(b.img.H)) {
 		return -1, -1
@@ -228,6 +248,7 @@ func (b *Board) CoordToXY(x, y int) (int, int) {
 	return x, y
 }
 
+// Converts on-screen coordinates to board coordinates.
 func (b *Board) XYToCoord(x, y int) (int, int) {
 	if (x > int(b.img.W)) || (y > int(b.img.H)) {
 		return -1, -1
@@ -245,6 +266,7 @@ func (b *Board) XYToCoord(x, y int) (int, int) {
 	return x, y
 }
 
+// Draws the specified piece at the specified coordinates.
 func (b *Board) drawPiece(x, y int, p *Piece) {
 	x, y = b.CoordToXY(x, y)
 
@@ -256,6 +278,8 @@ func (b *Board) drawPiece(x, y int, p *Piece) {
 	b.img.Blit(&sdl.Rect{X: int16(x), Y: int16(y)}, pimg, nil)
 }
 
+// Returns the board's image, complete with all the pieces drawn onto
+// it.
 func (b *Board) Image() *sdl.Surface {
 	b.img.FillRect(nil, sdl.MapRGB(b.img.Format, 0, 0, 0))
 
@@ -272,16 +296,20 @@ func (b *Board) Image() *sdl.Surface {
 	return b.img
 }
 
+// Returns the board's size.
 func (b *Board) Size() BoardSize {
 	return BoardSize(b.size)
 }
 
+// Places the specified piece at the locations specified by the
+// handicap.
 func (b *Board) ApplyHandicap(p *Piece, h Handicap) {
 	for _, v := range h {
 		b.place(v[0], v[1], p)
 	}
 }
 
+// Gives the appropriate komi.
 func (b *Board) GiveKomi(komi float64) {
 	b.komi += komi
 }

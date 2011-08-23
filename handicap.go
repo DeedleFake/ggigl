@@ -5,10 +5,15 @@ import (
 	"fmt"
 )
 
+// A type that represents the spaces that pieces are placed on at
+// specific levels of handicap.
 type Handicap [][2]int
 
 var (
+	// Handicap information for a 9x9 board.
 	handicaps9  Handicap
+
+	// Handicap information for a 19x19 board.
 	handicaps19 Handicap
 )
 
@@ -38,6 +43,8 @@ func init() {
 	}
 }
 
+// Returns the Handicap representing the given level for the specified
+// board.
 func GetHandicap(size BoardSize, num int) (Handicap, os.Error) {
 	switch size {
 	case Size9x9, Size19x19:
@@ -59,6 +66,8 @@ func GetHandicap(size BoardSize, num int) (Handicap, os.Error) {
 	panic("This should never reach this point...")
 }
 
+// Returns the maximum handicap available for the specified board
+// size.
 func MaxHandicap(size BoardSize) int {
 	switch size {
 	case Size9x9:

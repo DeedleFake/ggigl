@@ -8,9 +8,11 @@ import (
 )
 
 const (
+	// The window's title.
 	WinCap = "GGIGL: Go Game In Go Lang"
 )
 
+// Stores game information and basically runs everything.
 type game struct {
 	running bool
 
@@ -25,6 +27,8 @@ type game struct {
 	screen *sdl.Surface
 }
 
+// Runs everything, calling the methods required to get the game
+// running, runs the main loop, and then cleanly exits.
 func (g *game) run() (err os.Error) {
 	err = g.load()
 	if err != nil {
@@ -35,6 +39,7 @@ func (g *game) run() (err os.Error) {
 	if sdl.Init(sdl.INIT_EVERYTHING) < 0 {
 		return os.NewError(sdl.GetError())
 	}
+	defer sdl.Quit()
 
 	g.screen = sdl.SetVideoMode(640, 480, 32, sdl.DOUBLEBUF)
 	if g.screen == nil {
@@ -51,6 +56,7 @@ func (g *game) run() (err os.Error) {
 	return
 }
 
+// Runs the games main loop.
 func (g *game) main() (err os.Error) {
 	g.running = true
 
@@ -88,6 +94,7 @@ func (g *game) main() (err os.Error) {
 	return
 }
 
+// Handles key presses.
 func (g *game) onKeyboardEvent(ev *sdl.KeyboardEvent) (err os.Error) {
 	switch ev.Type {
 	case sdl.KEYDOWN:
@@ -127,12 +134,14 @@ func (g *game) onKeyboardEvent(ev *sdl.KeyboardEvent) (err os.Error) {
 	return
 }
 
+// Handles the mouse moving.
 func (g *game) onMouseMotionEvent(ev *sdl.MouseMotionEvent) (err os.Error) {
 	g.selX, g.selY = g.board.XYToCoord(int(ev.X), int(ev.Y))
 
 	return
 }
 
+// Handles mouse clicks.
 func (g *game) onMouseButtonEvent(ev *sdl.MouseButtonEvent) (err os.Error) {
 	switch ev.Type {
 	case sdl.MOUSEBUTTONDOWN:
@@ -145,6 +154,7 @@ func (g *game) onMouseButtonEvent(ev *sdl.MouseButtonEvent) (err os.Error) {
 	return
 }
 
+// Draws everything.
 func (g *game) draw() (err os.Error) {
 	if g.screen.Blit(nil, g.board.Image(), nil) < 0 {
 		return os.NewError(sdl.GetError())
@@ -173,6 +183,7 @@ func (g *game) draw() (err os.Error) {
 	return
 }
 
+// Runs all of the initial start-up stuff.
 func (g *game) load() (err os.Error) {
 	var (
 		size     int
@@ -248,6 +259,7 @@ func (g *game) load() (err os.Error) {
 	return
 }
 
+// Switches turns.
 func (g *game) changeTurns() {
 	switch g.turn {
 	case g.pieces["black"]:
@@ -261,12 +273,15 @@ func (g *game) changeTurns() {
 	g.passed = false
 }
 
+// Takes a normal turn, placing a piece at the predetermined coordinates.
 func (g *game)placeTurn() {
 	if g.board.Place(g.selX, g.selY, g.turn) {
 		g.changeTurns()
 	}
 }
 
+// Passes. Checks if it's the second pass in a row. If it is, it
+// returns true.
 func (g *game)passTurn() bool {
 	if g.passed {
 		return true
@@ -278,8 +293,9 @@ func (g *game)passTurn() bool {
 	return false
 }
 
+// Run when the game exits.
 func (g *game) quit() {
-	sdl.Quit()
+	// This will probably eventually autosave game information.
 }
 
 func main() {

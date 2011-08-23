@@ -8,13 +8,16 @@ import (
 )
 
 var (
+	// The path to the piece data.
 	PiecePath = path.Join("data", "pieces")
 )
 
+// Stores information for the piece.
 type Piece struct {
 	img *sdl.Surface
 }
 
+// Initializes a new piece.
 func NewPiece(t string) (*Piece, os.Error) {
 	p := new(Piece)
 
@@ -28,10 +31,12 @@ func NewPiece(t string) (*Piece, os.Error) {
 	return p, nil
 }
 
+// Frees resources associated with the piece.
 func (p *Piece) free() {
 	p.img.Free()
 }
 
+// Returns an image of the piece.
 func (p *Piece) Image() *sdl.Surface {
 	return p.img
 }
