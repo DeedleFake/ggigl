@@ -185,14 +185,17 @@ func (b *Board) Place(x, y int, p *Piece) (ret bool) {
 	defer func() {
 		if ret == false {
 			copy(b.pieces, b.tmp)
+		} else {
+			copy(b.prev[1], b.prev[0])
+			copy(b.prev[0], b.pieces)
+
+			if b.p1 == nil {
+				b.p1 = p
+			}
 		}
 	}()
 
-	if (x < 0) || (x > b.size-1) || (y < 0) || (y > b.size-1) {
-		return false
-	}
-
-	if b.At(x, y) != nil {
+	if (x < 0) || (x > b.size-1) || (y < 0) || (y > b.size-1) || (b.At(x, y) != nil) {
 		return false
 	}
 
@@ -229,13 +232,6 @@ func (b *Board) Place(x, y int, p *Piece) (ret bool) {
 
 	if (b.checkLib(x, y) != nil) || b.checkKo() {
 		return false
-	}
-
-	copy(b.prev[1], b.prev[0])
-	copy(b.prev[0], b.pieces)
-
-	if b.p1 == nil {
-		b.p1 = p
 	}
 
 	return true
