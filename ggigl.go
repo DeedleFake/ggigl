@@ -20,6 +20,7 @@ type game struct {
 	selX int
 	selY int
 	turn *Piece
+	passed bool
 
 	screen *sdl.Surface
 }
@@ -114,8 +115,10 @@ func (g *game) onKeyboardEvent(ev *sdl.KeyboardEvent) (err os.Error) {
 				g.selX = s - 1
 			}
 		case sdl.K_SPACE:
-			if g.board.Place(g.selX, g.selY, g.turn) {
-				g.changeTurns()
+			g.placeTurn()
+		case 'p':
+			if g.passTurn() {
+				// The game just ended.
 			}
 		}
 	case sdl.KEYUP:
@@ -135,9 +138,7 @@ func (g *game) onMouseButtonEvent(ev *sdl.MouseButtonEvent) (err os.Error) {
 	case sdl.MOUSEBUTTONDOWN:
 		switch ev.Button {
 		case sdl.BUTTON_LEFT:
-			if g.board.Place(g.selX, g.selY, g.turn) {
-				g.changeTurns()
-			}
+			g.placeTurn()
 		}
 	}
 
@@ -256,6 +257,25 @@ func (g *game) changeTurns() {
 	default:
 		panic("Invalid turn")
 	}
+
+	g.passed = false
+}
+
+func (g *game)placeTurn() {
+	if g.board.Place(g.selX, g.selY, g.turn) {
+		g.changeTurns()
+	}
+}
+
+func (g *game)passTurn() bool {
+	if g.passed {
+		return true
+	}
+
+	g.changeTurns()
+	g.passed = true
+
+	return false
 }
 
 func (g *game) quit() {
