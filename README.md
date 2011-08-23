@@ -6,7 +6,7 @@ ggigl (Go Game In Go Lang) is an implementation of the [Go board game][gogame] i
 Status
 ------
 
-Game is playable, but can't calculate score. In fact, there's no way to end the game other than quiting.
+The game is mostly playable, but it can't calculate score. In fact, there's no way to end the game other than quitting. Also doesn't handle ko.
 
 For more information, see TODO.
 
