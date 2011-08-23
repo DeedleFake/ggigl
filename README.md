@@ -3,6 +3,13 @@ ggigl
 
 ggigl (Go Game In Go Lang) is an implementation of the [Go board game][gogame] in the [Go programming language][golang].
 
+Status
+------
+
+Game is playable, but can't calculate score. In fact, there's no way to end the game other than quiting.
+
+For more information, see TODO.
+
 Usage
 -----
 
