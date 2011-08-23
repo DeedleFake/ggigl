@@ -27,8 +27,8 @@ const (
 type Board struct {
 	size   int
 	pieces []*Piece
-	prev [2][]*Piece
-	tmp []*Piece
+	prev   [2][]*Piece
+	tmp    []*Piece
 
 	bg  *sdl.Surface
 	img *sdl.Surface
@@ -47,7 +47,7 @@ func NewBoard(size BoardSize) (*Board, os.Error) {
 
 	b.size = int(size)
 	b.pieces = make([]*Piece, b.size*b.size)
-	for i := range(b.prev) {
+	for i := range b.prev {
 		b.prev[i] = make([]*Piece, b.size*b.size)
 	}
 	b.tmp = make([]*Piece, b.size*b.size)
@@ -97,8 +97,8 @@ func (b *Board) place(x, y int, p *Piece) {
 }
 
 // Checks whether or not the simple ko rule has been violated.
-func (b *Board)checkKo() bool {
-	for i := range(b.pieces) {
+func (b *Board) checkKo() bool {
+	for i := range b.pieces {
 		if b.pieces[i] != b.prev[1][i] {
 			return false
 		}
