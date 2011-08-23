@@ -27,6 +27,8 @@ const (
 type Board struct {
 	size   int
 	pieces []*Piece
+	prev [2][]*Piece
+	tmp []*Piece
 
 	bg  *sdl.Surface
 	img *sdl.Surface
@@ -45,6 +47,10 @@ func NewBoard(size BoardSize) (*Board, os.Error) {
 
 	b.size = int(size)
 	b.pieces = make([]*Piece, b.size*b.size)
+	for i := range(b.prev) {
+		b.prev[i] = make([]*Piece, b.size*b.size)
+	}
+	b.tmp = make([]*Piece, b.size*b.size)
 
 	b.bg = sdl.Load(path.Join(BoardPath, fmt.Sprintf("%v.png", b.size)))
 	if b.bg == nil {
@@ -88,6 +94,17 @@ func (b *Board) At(x, y int) *Piece {
 // rule checks.
 func (b *Board) place(x, y int, p *Piece) {
 	b.pieces[(y*b.size)+x] = p
+}
+
+// Checks whether or not the simple ko rule has been violated.
+func (b *Board)checkKo() bool {
+	for i := range(b.pieces) {
+		if b.pieces[i] != b.prev[1][i] {
+			return false
+		}
+	}
+
+	return true
 }
 
 // Recursively checks the liberties of a piece and the neibourghing
@@ -163,7 +180,14 @@ func (b *Board) checkLib(x, y int) [][2]int {
 // surrounding pieces to see if they've been captured. If they have,
 // it removes them. Also sets player one. Returns true if the piece
 // was placed, and false if it wasn't.
-func (b *Board) Place(x, y int, p *Piece) bool {
+func (b *Board) Place(x, y int, p *Piece) (ret bool) {
+	copy(b.tmp, b.pieces)
+	defer func() {
+		if ret == false {
+			copy(b.pieces, b.tmp)
+		}
+	}()
+
 	if (x < 0) || (x > b.size-1) || (y < 0) || (y > b.size-1) {
 		return false
 	}
@@ -203,10 +227,12 @@ func (b *Board) Place(x, y int, p *Piece) bool {
 		}
 	}
 
-	if b.checkLib(x, y) != nil {
-		b.place(x, y, nil)
+	if (b.checkLib(x, y) != nil) || b.checkKo() {
 		return false
 	}
+
+	copy(b.prev[1], b.prev[0])
+	copy(b.prev[0], b.pieces)
 
 	if b.p1 == nil {
 		b.p1 = p
