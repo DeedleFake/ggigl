@@ -48,13 +48,6 @@ type Board struct {
 
 	bg  *sdl.Surface
 	img *sdl.Surface
-
-	p1 *Piece
-
-	p1cap int
-	p2cap int
-
-	komi float64
 }
 
 // Initializes a new board of the given size using the given ko rule.
@@ -240,10 +233,10 @@ func (b *Board) checkLib(x, y int) [][2]int {
 // surrounding pieces to see if they've been captured. If they have,
 // it removes them. Also sets player one. Returns true if the piece
 // was placed, and false if it wasn't.
-func (b *Board) Place(x, y int, p *Piece) (ret bool) {
+func (b *Board) Place(x, y int, p *Piece) (ret int) {
 	copy(b.tmp, b.pieces)
 	defer func() {
-		if ret == false {
+		if ret < 0 {
 			copy(b.pieces, b.tmp)
 			b.turns = b.turns[:len(b.turns)-1]
 		} else {
@@ -252,17 +245,13 @@ func (b *Board) Place(x, y int, p *Piece) (ret bool) {
 				p:   p,
 				loc: [...]int{x, y},
 			})
-
-			if b.p1 == nil {
-				b.p1 = p
-			}
 		}
 	}()
 
 	b.turns = append(b.turns, nil)
 
 	if (x < 0) || (x > b.size-1) || (y < 0) || (y > b.size-1) || (b.At(x, y) != nil) {
-		return false
+		return -1
 	}
 
 	b.place(x, y, p)
@@ -271,6 +260,7 @@ func (b *Board) Place(x, y int, p *Piece) (ret bool) {
 		if c := b.checkLib(x-1, y); c != nil {
 			for _, v := range c {
 				b.remove(v[0], v[1])
+				ret++
 			}
 		}
 	}
@@ -278,6 +268,7 @@ func (b *Board) Place(x, y int, p *Piece) (ret bool) {
 		if c := b.checkLib(x+1, y); c != nil {
 			for _, v := range c {
 				b.remove(v[0], v[1])
+				ret++
 			}
 		}
 	}
@@ -285,6 +276,7 @@ func (b *Board) Place(x, y int, p *Piece) (ret bool) {
 		if c := b.checkLib(x, y-1); c != nil {
 			for _, v := range c {
 				b.remove(v[0], v[1])
+				ret++
 			}
 		}
 	}
@@ -292,29 +284,20 @@ func (b *Board) Place(x, y int, p *Piece) (ret bool) {
 		if c := b.checkLib(x, y+1); c != nil {
 			for _, v := range c {
 				b.remove(v[0], v[1])
+				ret++
 			}
 		}
 	}
 
 	if (b.checkLib(x, y) != nil) || b.checkKo() {
-		return false
+		return -1
 	}
 
-	return true
+	return
 }
 
 // Removes a piece from the board, updating the capture scores.
 func (b *Board) remove(x, y int) {
-	p := b.At(x, y)
-
-	switch p {
-	case nil:
-	case b.p1:
-		b.p2cap++
-	default:
-		b.p1cap++
-	}
-
 	b.place(x, y, nil)
 
 	chng := &b.turns[len(b.turns)-1]
@@ -423,9 +406,4 @@ func (b *Board) ApplyHandicap(p *Piece, h Handicap) {
 	for _, v := range h {
 		b.place(v[0], v[1], p)
 	}
-}
-
-// Gives the appropriate komi.
-func (b *Board) GiveKomi(komi float64) {
-	b.komi += komi
 }

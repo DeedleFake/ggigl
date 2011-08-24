@@ -2,4 +2,3 @@
  * Implement scoring system.
  * Set up a way to resign.
  * Set up a way to check the score.
- * Refactor score-related code from Board to game.

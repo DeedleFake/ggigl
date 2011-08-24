@@ -22,6 +22,7 @@ type game struct {
 	selX   int
 	selY   int
 	turn   *Piece
+	score map[*Piece]float64
 	passed bool
 
 	screen *sdl.Surface
@@ -172,8 +173,9 @@ func (g *game) changeTurns() {
 
 // Takes a normal turn, placing a piece at the predetermined coordinates.
 func (g *game) placeTurn() {
-	if g.board.Place(g.selX, g.selY, g.turn) {
+	if c := g.board.Place(g.selX, g.selY, g.turn); c >= 0 {
 		g.changeTurns()
+		g.score[g.turn] -= float64(c)
 	}
 }
 
@@ -285,6 +287,9 @@ func (g *game) load() (err os.Error) {
 
 	g.turn = g.pieces["black"]
 
+	g.score = make(map[*Piece]float64)
+	g.score[g.pieces["black"]] += komi
+
 	ko := SimpleKo
 	if superko {
 		ko = SuperKo
@@ -300,8 +305,6 @@ func (g *game) load() (err os.Error) {
 		return
 	}
 	g.board.ApplyHandicap(g.pieces["black"], handi)
-
-	g.board.GiveKomi(komi)
 
 	return
 }
