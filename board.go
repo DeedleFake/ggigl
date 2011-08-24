@@ -25,7 +25,7 @@ const (
 // A type for differentiating ko rules.
 type KoType int
 
-const(
+const (
 	SimpleKo KoType = 1 + iota
 	SuperKo
 )
@@ -66,12 +66,12 @@ func NewBoard(size BoardSize, ko KoType) (*Board, os.Error) {
 	b.tmp = make([]*Piece, b.size*b.size)
 
 	switch ko {
-		case SimpleKo:
-			b.ko = (*Board).simpleKo
-		case SuperKo:
-			b.ko = (*Board).superKo
-		default:
-			return nil, fmt.Errorf("Unknown ko type: %v", ko)
+	case SimpleKo:
+		b.ko = (*Board).simpleKo
+	case SuperKo:
+		b.ko = (*Board).superKo
+	default:
+		return nil, fmt.Errorf("Unknown ko type: %v", ko)
 	}
 
 	b.bg = sdl.Load(path.Join(BoardPath, fmt.Sprintf("%v.png", b.size)))
@@ -137,9 +137,9 @@ func (b *Board) simpleKo() bool {
 
 // Checks the super ko rule. Returns true if the rule has been
 // violated.
-func (b *Board)superKo() bool {
+func (b *Board) superKo() bool {
 	checkTurn := func(prev []*Piece) bool {
-		for i := range(b.pieces) {
+		for i := range b.pieces {
 			if b.pieces[i] != prev[i] {
 				return false
 			}
@@ -148,7 +148,7 @@ func (b *Board)superKo() bool {
 		return true
 	}
 
-	for i := 0; i < len(b.turns) - 1; i++ {
+	for i := 0; i < len(b.turns)-1; i++ {
 		prev := b.getTurn(i)
 		if prev == nil {
 			continue
@@ -163,7 +163,7 @@ func (b *Board)superKo() bool {
 }
 
 // Checks for ko. Returns true if the rule has been violated.
-func (b *Board)checkKo() bool {
+func (b *Board) checkKo() bool {
 	return b.ko(b)
 }
 

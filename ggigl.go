@@ -148,8 +148,8 @@ func (g *game) onMouseButtonEvent(ev *sdl.MouseButtonEvent) (err os.Error) {
 		switch ev.Button {
 		case sdl.BUTTON_LEFT:
 			g.placeTurn()
-		//case sdl.BUTTON_RIGHT:
-		//	g.board.remove(g.selX, g.selY)
+			//case sdl.BUTTON_RIGHT:
+			//	g.board.remove(g.selX, g.selY)
 		}
 	}
 
@@ -225,7 +225,7 @@ func (g *game) load() (err os.Error) {
 		size     int
 		handicap int
 		komi     float64
-		superko bool
+		superko  bool
 	)
 	flag.IntVar(&size,
 		"size",
