@@ -22,7 +22,7 @@ type game struct {
 	selX   int
 	selY   int
 	turn   *Piece
-	score map[*Piece]float64
+	score  map[*Piece]float64
 	passed bool
 
 	screen *sdl.Surface
