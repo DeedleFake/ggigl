@@ -22,13 +22,19 @@ const (
 	Size19x19 BoardSize = 19
 )
 
+// Stores information about changes to the board.
+type Placement struct {
+	p *Piece
+	loc [2]int
+}
+
 // Stores board information. Also calculates score and keeps track of
 // the basic rules.
 type Board struct {
 	size   int
 	pieces []*Piece
-	prev   [2][]*Piece
 	tmp    []*Piece
+	turns [][]Placement
 
 	bg  *sdl.Surface
 	img *sdl.Surface
@@ -47,9 +53,6 @@ func NewBoard(size BoardSize) (*Board, os.Error) {
 
 	b.size = int(size)
 	b.pieces = make([]*Piece, b.size*b.size)
-	for i := range b.prev {
-		b.prev[i] = make([]*Piece, b.size*b.size)
-	}
 	b.tmp = make([]*Piece, b.size*b.size)
 
 	b.bg = sdl.Load(path.Join(BoardPath, fmt.Sprintf("%v.png", b.size)))
@@ -96,10 +99,16 @@ func (b *Board) place(x, y int, p *Piece) {
 	b.pieces[(y*b.size)+x] = p
 }
 
-// Checks whether or not the simple ko rule has been violated.
+// Checks the simple ko rule. Returns true if the rule has been
+// violated.
 func (b *Board) checkKo() bool {
+	prev := b.getTurn(len(b.turns)-2)
+	if prev == nil {
+		return false
+	}
+
 	for i := range b.pieces {
-		if b.pieces[i] != b.prev[1][i] {
+		if b.pieces[i] != prev[i] {
 			return false
 		}
 	}
@@ -185,15 +194,21 @@ func (b *Board) Place(x, y int, p *Piece) (ret bool) {
 	defer func() {
 		if ret == false {
 			copy(b.pieces, b.tmp)
+			b.turns = b.turns[:len(b.turns)-1]
 		} else {
-			copy(b.prev[1], b.prev[0])
-			copy(b.prev[0], b.pieces)
+			chng := &b.turns[len(b.turns)-1]
+			*chng = append(*chng, Placement{
+				p: p,
+				loc: [...]int{x, y},
+			})
 
 			if b.p1 == nil {
 				b.p1 = p
 			}
 		}
 	}()
+
+	b.turns = append(b.turns, nil)
 
 	if (x < 0) || (x > b.size-1) || (y < 0) || (y > b.size-1) || (b.At(x, y) != nil) {
 		return false
@@ -204,28 +219,28 @@ func (b *Board) Place(x, y int, p *Piece) (ret bool) {
 	if (x > 0) && (b.At(x-1, y) != p) {
 		if c := b.checkLib(x-1, y); c != nil {
 			for _, v := range c {
-				b.Remove(v[0], v[1])
+				b.remove(v[0], v[1])
 			}
 		}
 	}
 	if (x < b.size-1) && (b.At(x+1, y) != p) {
 		if c := b.checkLib(x+1, y); c != nil {
 			for _, v := range c {
-				b.Remove(v[0], v[1])
+				b.remove(v[0], v[1])
 			}
 		}
 	}
 	if (y > 0) && (b.At(x, y-1) != p) {
 		if c := b.checkLib(x, y-1); c != nil {
 			for _, v := range c {
-				b.Remove(v[0], v[1])
+				b.remove(v[0], v[1])
 			}
 		}
 	}
 	if (y < b.size-1) && (b.At(x, y+1) != p) {
 		if c := b.checkLib(x, y+1); c != nil {
 			for _, v := range c {
-				b.Remove(v[0], v[1])
+				b.remove(v[0], v[1])
 			}
 		}
 	}
@@ -238,7 +253,7 @@ func (b *Board) Place(x, y int, p *Piece) (ret bool) {
 }
 
 // Removes a piece from the board, updating the capture scores.
-func (b *Board) Remove(x, y int) {
+func (b *Board) remove(x, y int) {
 	p := b.At(x, y)
 
 	switch p {
@@ -250,6 +265,29 @@ func (b *Board) Remove(x, y int) {
 	}
 
 	b.place(x, y, nil)
+
+	chng := &b.turns[len(b.turns)-1]
+	*chng = append(*chng, Placement{
+		p: nil,
+		loc: [...]int{x, y},
+	})
+}
+
+func (b *Board)getTurn(num int) []*Piece {
+	if (num < 0) || (num >= len(b.turns)) {
+		return nil
+	}
+
+	t := make([]*Piece, b.size*b.size)
+
+	for i := 0; i < num; i++ {
+		turn := b.turns[i]
+		for _, v := range(turn) {
+			t[(v.loc[1]*b.size)+v.loc[0]] = v.p
+		}
+	}
+
+	return t
 }
 
 // Converts board coordinates to on-screen coordinates.
