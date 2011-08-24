@@ -148,10 +148,46 @@ func (g *game) onMouseButtonEvent(ev *sdl.MouseButtonEvent) (err os.Error) {
 		switch ev.Button {
 		case sdl.BUTTON_LEFT:
 			g.placeTurn()
+		//case sdl.BUTTON_RIGHT:
+		//	g.board.remove(g.selX, g.selY)
 		}
 	}
 
 	return
+}
+
+// Switches turns.
+func (g *game) changeTurns() {
+	switch g.turn {
+	case g.pieces["black"]:
+		g.turn = g.pieces["white"]
+	case g.pieces["white"]:
+		g.turn = g.pieces["black"]
+	default:
+		panic("Invalid turn")
+	}
+
+	g.passed = false
+}
+
+// Takes a normal turn, placing a piece at the predetermined coordinates.
+func (g *game) placeTurn() {
+	if g.board.Place(g.selX, g.selY, g.turn) {
+		g.changeTurns()
+	}
+}
+
+// Passes. Checks if it's the second pass in a row. If it is, it
+// returns true.
+func (g *game) passTurn() bool {
+	if g.passed {
+		return true
+	}
+
+	g.changeTurns()
+	g.passed = true
+
+	return false
 }
 
 // Draws everything.
@@ -189,6 +225,7 @@ func (g *game) load() (err os.Error) {
 		size     int
 		handicap int
 		komi     float64
+		superko bool
 	)
 	flag.IntVar(&size,
 		"size",
@@ -209,6 +246,11 @@ func (g *game) load() (err os.Error) {
 		"komi",
 		-1,
 		"Komi; -1 to set based on handicap; Default: 5.5",
+	)
+	flag.BoolVar(&superko,
+		"superko",
+		false,
+		"Use super ko instead of simple ko.",
 	)
 	flag.Parse()
 
@@ -243,7 +285,12 @@ func (g *game) load() (err os.Error) {
 
 	g.turn = g.pieces["black"]
 
-	g.board, err = NewBoard(BoardSize(size))
+	ko := SimpleKo
+	if superko {
+		ko = SuperKo
+	}
+
+	g.board, err = NewBoard(BoardSize(size), ko)
 	if err != nil {
 		return
 	}
@@ -257,40 +304,6 @@ func (g *game) load() (err os.Error) {
 	g.board.GiveKomi(komi)
 
 	return
-}
-
-// Switches turns.
-func (g *game) changeTurns() {
-	switch g.turn {
-	case g.pieces["black"]:
-		g.turn = g.pieces["white"]
-	case g.pieces["white"]:
-		g.turn = g.pieces["black"]
-	default:
-		panic("Invalid turn")
-	}
-
-	g.passed = false
-}
-
-// Takes a normal turn, placing a piece at the predetermined coordinates.
-func (g *game) placeTurn() {
-	if g.board.Place(g.selX, g.selY, g.turn) {
-		g.changeTurns()
-	}
-}
-
-// Passes. Checks if it's the second pass in a row. If it is, it
-// returns true.
-func (g *game) passTurn() bool {
-	if g.passed {
-		return true
-	}
-
-	g.changeTurns()
-	g.passed = true
-
-	return false
 }
 
 // Run when the game exits.

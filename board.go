@@ -22,6 +22,14 @@ const (
 	Size19x19 BoardSize = 19
 )
 
+// A type for differentiating ko rules.
+type KoType int
+
+const(
+	SimpleKo KoType = 1 + iota
+	SuperKo
+)
+
 // Stores information about changes to the board.
 type Placement struct {
 	p   *Piece
@@ -36,6 +44,8 @@ type Board struct {
 	tmp    []*Piece
 	turns  [][]Placement
 
+	ko func(*Board) bool
+
 	bg  *sdl.Surface
 	img *sdl.Surface
 
@@ -47,13 +57,22 @@ type Board struct {
 	komi float64
 }
 
-// Initializes a new board of the given size.
-func NewBoard(size BoardSize) (*Board, os.Error) {
+// Initializes a new board of the given size using the given ko rule.
+func NewBoard(size BoardSize, ko KoType) (*Board, os.Error) {
 	b := new(Board)
 
 	b.size = int(size)
 	b.pieces = make([]*Piece, b.size*b.size)
 	b.tmp = make([]*Piece, b.size*b.size)
+
+	switch ko {
+		case SimpleKo:
+			b.ko = (*Board).simpleKo
+		case SuperKo:
+			b.ko = (*Board).superKo
+		default:
+			return nil, fmt.Errorf("Unknown ko type: %v", ko)
+	}
 
 	b.bg = sdl.Load(path.Join(BoardPath, fmt.Sprintf("%v.png", b.size)))
 	if b.bg == nil {
@@ -101,8 +120,8 @@ func (b *Board) place(x, y int, p *Piece) {
 
 // Checks the simple ko rule. Returns true if the rule has been
 // violated.
-func (b *Board) checkKo() bool {
-	prev := b.getTurn(len(b.turns) - 2)
+func (b *Board) simpleKo() bool {
+	prev := b.getTurn(-2)
 	if prev == nil {
 		return false
 	}
@@ -114,6 +133,38 @@ func (b *Board) checkKo() bool {
 	}
 
 	return true
+}
+
+// Checks the super ko rule. Returns true if the rule has been
+// violated.
+func (b *Board)superKo() bool {
+	checkTurn := func(prev []*Piece) bool {
+		for i := range(b.pieces) {
+			if b.pieces[i] != prev[i] {
+				return false
+			}
+		}
+
+		return true
+	}
+
+	for i := 0; i < len(b.turns) - 1; i++ {
+		prev := b.getTurn(i)
+		if prev == nil {
+			continue
+		}
+
+		if checkTurn(prev) {
+			return true
+		}
+	}
+
+	return false
+}
+
+// Checks for ko. Returns true if the rule has been violated.
+func (b *Board)checkKo() bool {
+	return b.ko(b)
 }
 
 // Recursively checks the liberties of a piece and the neibourghing
@@ -273,7 +324,12 @@ func (b *Board) remove(x, y int) {
 	})
 }
 
+// Returns the board at the given turn, or nil if there's a problem.
 func (b *Board) getTurn(num int) []*Piece {
+	if num < 0 {
+		num += len(b.turns)
+	}
+
 	if (num < 0) || (num >= len(b.turns)) {
 		return nil
 	}
