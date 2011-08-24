@@ -24,7 +24,7 @@ const (
 
 // Stores information about changes to the board.
 type Placement struct {
-	p *Piece
+	p   *Piece
 	loc [2]int
 }
 
@@ -34,7 +34,7 @@ type Board struct {
 	size   int
 	pieces []*Piece
 	tmp    []*Piece
-	turns [][]Placement
+	turns  [][]Placement
 
 	bg  *sdl.Surface
 	img *sdl.Surface
@@ -102,7 +102,7 @@ func (b *Board) place(x, y int, p *Piece) {
 // Checks the simple ko rule. Returns true if the rule has been
 // violated.
 func (b *Board) checkKo() bool {
-	prev := b.getTurn(len(b.turns)-2)
+	prev := b.getTurn(len(b.turns) - 2)
 	if prev == nil {
 		return false
 	}
@@ -198,7 +198,7 @@ func (b *Board) Place(x, y int, p *Piece) (ret bool) {
 		} else {
 			chng := &b.turns[len(b.turns)-1]
 			*chng = append(*chng, Placement{
-				p: p,
+				p:   p,
 				loc: [...]int{x, y},
 			})
 
@@ -268,12 +268,12 @@ func (b *Board) remove(x, y int) {
 
 	chng := &b.turns[len(b.turns)-1]
 	*chng = append(*chng, Placement{
-		p: nil,
+		p:   nil,
 		loc: [...]int{x, y},
 	})
 }
 
-func (b *Board)getTurn(num int) []*Piece {
+func (b *Board) getTurn(num int) []*Piece {
 	if (num < 0) || (num >= len(b.turns)) {
 		return nil
 	}
@@ -282,7 +282,7 @@ func (b *Board)getTurn(num int) []*Piece {
 
 	for i := 0; i < num; i++ {
 		turn := b.turns[i]
-		for _, v := range(turn) {
+		for _, v := range turn {
 			t[(v.loc[1]*b.size)+v.loc[0]] = v.p
 		}
 	}
