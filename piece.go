@@ -1,8 +1,8 @@
 package main
 
 import (
-	"os"
-	"sdl"
+	"errors"
+	"github.com/banthar/Go-SDL/sdl"
 	"path"
 	"runtime"
 )
@@ -18,12 +18,12 @@ type Piece struct {
 }
 
 // Initializes a new piece.
-func NewPiece(t string) (*Piece, os.Error) {
+func NewPiece(t string) (*Piece, error) {
 	p := new(Piece)
 
 	p.img = sdl.Load(path.Join(PiecePath, t+".png"))
 	if p.img == nil {
-		return nil, os.NewError(sdl.GetError())
+		return nil, errors.New(sdl.GetError())
 	}
 
 	runtime.SetFinalizer(p, (*Piece).free)

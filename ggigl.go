@@ -1,10 +1,11 @@
 package main
 
 import (
-	"os"
-	"fmt"
-	"sdl"
+	"errors"
 	"flag"
+	"fmt"
+	"github.com/banthar/Go-SDL/sdl"
+	"os"
 )
 
 const (
@@ -30,7 +31,7 @@ type game struct {
 
 // Runs everything, calling the methods required to get the game
 // running, runs the main loop, and then cleanly exits.
-func (g *game) run() (err os.Error) {
+func (g *game) run() (err error) {
 	err = g.load()
 	if err != nil {
 		return
@@ -38,13 +39,13 @@ func (g *game) run() (err os.Error) {
 	defer g.quit()
 
 	if sdl.Init(sdl.INIT_EVERYTHING) < 0 {
-		return os.NewError(sdl.GetError())
+		return errors.New(sdl.GetError())
 	}
 	defer sdl.Quit()
 
 	g.screen = sdl.SetVideoMode(640, 480, 32, sdl.DOUBLEBUF)
 	if g.screen == nil {
-		return os.NewError(sdl.GetError())
+		return errors.New(sdl.GetError())
 	}
 
 	sdl.WM_SetCaption(WinCap, "")
@@ -58,7 +59,7 @@ func (g *game) run() (err os.Error) {
 }
 
 // Runs the games main loop.
-func (g *game) main() (err os.Error) {
+func (g *game) main() (err error) {
 	g.running = true
 
 	for g.running {
@@ -96,7 +97,7 @@ func (g *game) main() (err os.Error) {
 }
 
 // Handles key presses.
-func (g *game) onKeyboardEvent(ev *sdl.KeyboardEvent) (err os.Error) {
+func (g *game) onKeyboardEvent(ev *sdl.KeyboardEvent) (err error) {
 	switch ev.Type {
 	case sdl.KEYDOWN:
 		switch ev.Keysym.Sym {
@@ -136,14 +137,14 @@ func (g *game) onKeyboardEvent(ev *sdl.KeyboardEvent) (err os.Error) {
 }
 
 // Handles the mouse moving.
-func (g *game) onMouseMotionEvent(ev *sdl.MouseMotionEvent) (err os.Error) {
+func (g *game) onMouseMotionEvent(ev *sdl.MouseMotionEvent) (err error) {
 	g.selX, g.selY = g.board.XYToCoord(int(ev.X), int(ev.Y))
 
 	return
 }
 
 // Handles mouse clicks.
-func (g *game) onMouseButtonEvent(ev *sdl.MouseButtonEvent) (err os.Error) {
+func (g *game) onMouseButtonEvent(ev *sdl.MouseButtonEvent) (err error) {
 	switch ev.Type {
 	case sdl.MOUSEBUTTONDOWN:
 		switch ev.Button {
@@ -193,9 +194,9 @@ func (g *game) passTurn() bool {
 }
 
 // Draws everything.
-func (g *game) draw() (err os.Error) {
+func (g *game) draw() (err error) {
 	if g.screen.Blit(nil, g.board.Image(), nil) < 0 {
-		return os.NewError(sdl.GetError())
+		return errors.New(sdl.GetError())
 	}
 
 	if (g.selX >= 0) || (g.selY >= 0) {
@@ -222,7 +223,7 @@ func (g *game) draw() (err os.Error) {
 }
 
 // Runs all of the initial start-up stuff.
-func (g *game) load() (err os.Error) {
+func (g *game) load() (err error) {
 	var (
 		size     int
 		handicap int

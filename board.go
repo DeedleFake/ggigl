@@ -1,9 +1,9 @@
 package main
 
 import (
-	"os"
+	"errors"
 	"fmt"
-	"sdl"
+	"github.com/banthar/Go-SDL/sdl"
 	"path"
 	"runtime"
 )
@@ -51,7 +51,7 @@ type Board struct {
 }
 
 // Initializes a new board of the given size using the given ko rule.
-func NewBoard(size BoardSize, ko KoType) (*Board, os.Error) {
+func NewBoard(size BoardSize, ko KoType) (*Board, error) {
 	b := new(Board)
 
 	b.size = int(size)
@@ -69,7 +69,7 @@ func NewBoard(size BoardSize, ko KoType) (*Board, os.Error) {
 
 	b.bg = sdl.Load(path.Join(BoardPath, fmt.Sprintf("%v.png", b.size)))
 	if b.bg == nil {
-		return nil, os.NewError(sdl.GetError())
+		return nil, errors.New(sdl.GetError())
 	}
 
 	//b.img = sdl.CreateRGBSurface(sdl.HWSURFACE,
@@ -87,7 +87,7 @@ func NewBoard(size BoardSize, ko KoType) (*Board, os.Error) {
 
 	b.img = sdl.Load(path.Join(BoardPath, fmt.Sprintf("%v.png", b.size)))
 	if b.img == nil {
-		return nil, os.NewError(sdl.GetError())
+		return nil, errors.New(sdl.GetError())
 	}
 
 	runtime.SetFinalizer(b, (*Board).free)

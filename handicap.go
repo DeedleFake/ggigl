@@ -1,9 +1,6 @@
 package main
 
-import (
-	"os"
-	"fmt"
-)
+import "fmt"
 
 // A type that represents the spaces that pieces are placed on at
 // specific levels of handicap.
@@ -45,7 +42,7 @@ func init() {
 
 // Returns the Handicap representing the given level for the specified
 // board.
-func GetHandicap(size BoardSize, num int) (Handicap, os.Error) {
+func GetHandicap(size BoardSize, num int) (Handicap, error) {
 	switch size {
 	case Size9x9, Size19x19:
 	default:
