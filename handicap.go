@@ -46,7 +46,7 @@ func GetHandicap(size BoardSize, num int) (Handicap, error) {
 	switch size {
 	case Size9x9, Size19x19:
 	default:
-		return nil, fmt.Errorf("Handicaps not supported for board size: %v", size)
+		return nil, fmt.Errorf("handicaps not supported for board size: %v", size)
 	}
 
 	if num > MaxHandicap(size) {

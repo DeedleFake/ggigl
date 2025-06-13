@@ -4,8 +4,9 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/banthar/Go-SDL/sdl"
 	"os"
+
+	"github.com/banthar/Go-SDL/sdl"
 )
 
 const (
@@ -209,11 +210,11 @@ func (g *game) draw() (err error) {
 		//timg.SetAlpha(sdl.SRCALPHA, 255)
 		switch g.turn {
 		case g.pieces["black"]:
-			g.screen.FillRect(&sdl.Rect{int16(sx - 10), int16(sy - 10), 20, 20},
+			g.screen.FillRect(&sdl.Rect{X: int16(sx - 10), Y: int16(sy - 10), W: 20, H: 20},
 				sdl.MapRGBA(g.screen.Format, 0, 0, 0, 128),
 			)
 		case g.pieces["white"]:
-			g.screen.FillRect(&sdl.Rect{int16(sx - 10), int16(sy - 10), 20, 20},
+			g.screen.FillRect(&sdl.Rect{X: int16(sx - 10), Y: int16(sy - 10), W: 20, H: 20},
 				sdl.MapRGBA(g.screen.Format, 255, 255, 255, 128),
 			)
 		}
@@ -260,11 +261,11 @@ func (g *game) load() (err error) {
 	switch BoardSize(size) {
 	case Size9x9, Size19x19:
 	default:
-		return fmt.Errorf("Bad board size: %v", size)
+		return fmt.Errorf("bad board size: %v", size)
 	}
 
 	if (handicap < 0) || (handicap > MaxHandicap(BoardSize(size))) {
-		return fmt.Errorf("Bad handicap: %v", handicap)
+		return fmt.Errorf("bad handicap: %v", handicap)
 	}
 
 	if komi < 0 {

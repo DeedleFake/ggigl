@@ -3,9 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/banthar/Go-SDL/sdl"
 	"path"
 	"runtime"
+
+	"github.com/banthar/Go-SDL/sdl"
 )
 
 var (
@@ -64,7 +65,7 @@ func NewBoard(size BoardSize, ko KoType) (*Board, error) {
 	case SuperKo:
 		b.ko = (*Board).superKo
 	default:
-		return nil, fmt.Errorf("Unknown ko type: %v", ko)
+		return nil, fmt.Errorf("unknown ko type: %v", ko)
 	}
 
 	b.bg = sdl.Load(path.Join(BoardPath, fmt.Sprintf("%v.png", b.size)))
@@ -141,7 +142,7 @@ func (b *Board) superKo() bool {
 		return true
 	}
 
-	for i := 0; i < len(b.turns)-1; i++ {
+	for i := range b.turns {
 		prev := b.getTurn(i)
 		if prev == nil {
 			continue
@@ -319,7 +320,7 @@ func (b *Board) getTurn(num int) []*Piece {
 
 	t := make([]*Piece, b.size*b.size)
 
-	for i := 0; i < num; i++ {
+	for i := range num {
 		turn := b.turns[i]
 		for _, v := range turn {
 			t[(v.loc[1]*b.size)+v.loc[0]] = v.p
@@ -384,8 +385,8 @@ func (b *Board) Image() *sdl.Surface {
 
 	b.img.Blit(nil, b.bg, nil)
 
-	for y := 0; y < b.size; y++ {
-		for x := 0; x < b.size; x++ {
+	for y := range b.size {
+		for x := range b.size {
 			if p := b.At(x, y); p != nil {
 				b.drawPiece(x, y, p)
 			}
