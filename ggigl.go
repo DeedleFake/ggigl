@@ -3,8 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"image"
-	"image/draw"
 	"log/slog"
 	"os"
 
@@ -199,19 +197,19 @@ func (g *game) Draw(screen *ebiten.Image) {
 
 	if (g.selX >= 0) || (g.selY >= 0) {
 		sx, sy := g.board.CoordToXY(g.selX, g.selY)
-		draw.Draw(
-			screen,
-			image.Rect(sx-10, sy-10, sx+10, sy+10),
-			g.turn.HighlightColor(),
-			image.Point{},
-			draw.Over,
-		)
-		//timg := g.turn.Image()
-		//sx -= int(timg.W / 2)
-		//sy -= int(timg.H / 2)
-		//timg.SetAlpha(sdl.SRCALPHA, 128)
-		//g.screen.Blit(&sdl.Rect{X: int16(sx), Y: int16(sy)}, timg, nil)
-		//timg.SetAlpha(sdl.SRCALPHA, 255)
+		img := g.turn.Image()
+		bounds := img.Bounds()
+
+		var geom ebiten.GeoM
+		geom.Translate(float64(sx-(bounds.Dx()/2)), float64(sy-(bounds.Dy()/2)))
+
+		var colorScale ebiten.ColorScale
+		colorScale.ScaleAlpha(.5)
+
+		screen.DrawImage(img, &ebiten.DrawImageOptions{
+			GeoM:       geom,
+			ColorScale: colorScale,
+		})
 	}
 }
 

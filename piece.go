@@ -1,9 +1,6 @@
 package main
 
 import (
-	"fmt"
-	"image"
-
 	"github.com/hajimehoshi/ebiten/v2"
 )
 
@@ -20,15 +17,4 @@ var (
 // Returns an image of the piece.
 func (p *Piece) Image() *ebiten.Image {
 	return p.img
-}
-
-func (p *Piece) HighlightColor() *image.Uniform {
-	switch p {
-	case Black:
-		return blackHighlight
-	case White:
-		return whiteHighlight
-	default:
-		panic(fmt.Errorf("invalid piece: %v", p))
-	}
 }
