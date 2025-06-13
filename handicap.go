@@ -50,7 +50,7 @@ func GetHandicap(size BoardSize, num int) (Handicap, error) {
 	}
 
 	if num > MaxHandicap(size) {
-		return nil, fmt.Errorf("Handicap exceeds max for board size: %v", num)
+		return nil, fmt.Errorf("handicap exceeds max for board size: %v", num)
 	}
 
 	switch size {
