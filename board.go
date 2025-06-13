@@ -1,12 +1,10 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"path"
-	"runtime"
 
-	"github.com/banthar/Go-SDL/sdl"
+	"github.com/hajimehoshi/ebiten/v2"
 )
 
 var (
@@ -23,13 +21,46 @@ const (
 	Size19x19 BoardSize = 19
 )
 
-// A type for differentiating ko rules.
-type KoType int
+func (size BoardSize) Valid() bool {
+	return size == Size9x9 || size == Size19x19
+}
 
-const (
-	SimpleKo KoType = 1 + iota
-	SuperKo
-)
+func (size BoardSize) image() *ebiten.Image {
+	switch size {
+	case Size9x9:
+		return board9x9Image
+	case Size19x19:
+		return board19x19Image
+	default:
+		panic(fmt.Errorf("invalid board size: %v", size))
+	}
+}
+
+func (size BoardSize) scaleUp(x, y int) (int, int) {
+	switch size {
+	case Size9x9:
+		x = (x * 52) + 31
+		y = (y * 52) + 31
+	case Size19x19:
+		x = (x * 25) + 14
+		y = (y * 25) + 14
+	}
+
+	return x, y
+}
+
+func (size BoardSize) scaleDown(x, y int) (int, int) {
+	switch size {
+	case Size9x9:
+		x /= 52
+		y /= 52
+	case Size19x19:
+		x /= 25
+		y /= 25
+	}
+
+	return x, y
+}
 
 // Stores information about changes to the board.
 type Placement struct {
@@ -45,60 +76,30 @@ type Board struct {
 	tmp    []*Piece
 	turns  [][]Placement
 
-	ko func(*Board) bool
+	ko func() bool
 
-	bg  *sdl.Surface
-	img *sdl.Surface
+	img *ebiten.Image
 }
 
 // Initializes a new board of the given size using the given ko rule.
-func NewBoard(size BoardSize, ko KoType) (*Board, error) {
-	b := new(Board)
-
-	b.size = int(size)
-	b.pieces = make([]*Piece, b.size*b.size)
-	b.tmp = make([]*Piece, b.size*b.size)
-
-	switch ko {
-	case SimpleKo:
-		b.ko = (*Board).simpleKo
-	case SuperKo:
-		b.ko = (*Board).superKo
-	default:
-		return nil, fmt.Errorf("unknown ko type: %v", ko)
+func NewBoard(size BoardSize, superko bool) (*Board, error) {
+	if !size.Valid() {
+		return nil, fmt.Errorf("invalid board size: %v", size)
 	}
 
-	b.bg = sdl.Load(path.Join(BoardPath, fmt.Sprintf("%v.png", b.size)))
-	if b.bg == nil {
-		return nil, errors.New(sdl.GetError())
+	b := Board{
+		size:   int(size),
+		pieces: make([]*Piece, size*size),
+		tmp:    make([]*Piece, size*size),
+		img:    size.image(),
 	}
 
-	//b.img = sdl.CreateRGBSurface(sdl.HWSURFACE,
-	//	int(b.bg.W),
-	//	int(b.bg.H),
-	//	int(b.bg.Format.BitsPerPixel),
-	//	b.bg.Format.Rmask,
-	//	b.bg.Format.Gmask,
-	//	b.bg.Format.Bmask,
-	//	b.bg.Format.Amask,
-	//)
-	//if b.img == nil {
-	//	return nil, os.NewError(sdl.GetError())
-	//}
-
-	b.img = sdl.Load(path.Join(BoardPath, fmt.Sprintf("%v.png", b.size)))
-	if b.img == nil {
-		return nil, errors.New(sdl.GetError())
+	b.ko = b.simpleKo
+	if superko {
+		b.ko = b.superKo
 	}
 
-	runtime.SetFinalizer(b, (*Board).free)
-
-	return b, nil
-}
-
-// Frees up the boards resources.
-func (b *Board) free() {
-	b.bg.Free()
+	return &b, nil
 }
 
 // Returns the piece at the specified coordinates.
@@ -158,7 +159,7 @@ func (b *Board) superKo() bool {
 
 // Checks for ko. Returns true if the rule has been violated.
 func (b *Board) checkKo() bool {
-	return b.ko(b)
+	return b.ko()
 }
 
 // Recursively checks the liberties of a piece and the neibourghing
@@ -332,68 +333,48 @@ func (b *Board) getTurn(num int) []*Piece {
 
 // Converts board coordinates to on-screen coordinates.
 func (b *Board) CoordToXY(x, y int) (int, int) {
-	if (x > int(b.img.W)) || (y > int(b.img.H)) {
+	imgBounds := b.img.Bounds()
+	if (x > imgBounds.Dx()) || (y > imgBounds.Dy()) {
 		return -1, -1
 	}
-
-	switch BoardSize(b.size) {
-	case Size9x9:
-		x = (x * 52) + 31
-		y = (y * 52) + 31
-	case Size19x19:
-		x = (x * 25) + 14
-		y = (y * 25) + 14
-	}
-
-	return x, y
+	return b.Size().scaleUp(x, y)
 }
 
 // Converts on-screen coordinates to board coordinates.
 func (b *Board) XYToCoord(x, y int) (int, int) {
-	if (x > int(b.img.W)) || (y > int(b.img.H)) {
+	imgBounds := b.img.Bounds()
+	if (x > imgBounds.Dx()) || (y > imgBounds.Dy()) {
 		return -1, -1
 	}
-
-	switch BoardSize(b.size) {
-	case Size9x9:
-		x /= 52
-		y /= 52
-	case Size19x19:
-		x /= 25
-		y /= 25
-	}
-
-	return x, y
+	return b.Size().scaleDown(x, y)
 }
 
 // Draws the specified piece at the specified coordinates.
-func (b *Board) drawPiece(x, y int, p *Piece) {
+func (b *Board) drawPiece(dst *ebiten.Image, x, y int, p *Piece) {
 	x, y = b.CoordToXY(x, y)
 
 	pimg := p.Image()
+	pbounds := pimg.Bounds()
+	x -= pbounds.Dx() / 2
+	y -= pbounds.Dy() / 2
 
-	x -= int(pimg.W / 2)
-	y -= int(pimg.H / 2)
-
-	b.img.Blit(&sdl.Rect{X: int16(x), Y: int16(y)}, pimg, nil)
+	var geom ebiten.GeoM
+	geom.Translate(float64(x), float64(y))
+	dst.DrawImage(pimg, &ebiten.DrawImageOptions{GeoM: geom})
 }
 
-// Returns the board's image, complete with all the pieces drawn onto
-// it.
-func (b *Board) Image() *sdl.Surface {
-	b.img.FillRect(nil, sdl.MapRGB(b.img.Format, 0, 0, 0))
-
-	b.img.Blit(nil, b.bg, nil)
+func (b *Board) Draw(dst *ebiten.Image, geom ebiten.GeoM) {
+	dst.DrawImage(b.img, &ebiten.DrawImageOptions{
+		GeoM: geom,
+	})
 
 	for y := range b.size {
 		for x := range b.size {
 			if p := b.At(x, y); p != nil {
-				b.drawPiece(x, y, p)
+				b.drawPiece(dst, x, y, p)
 			}
 		}
 	}
-
-	return b.img
 }
 
 // Returns the board's size.
